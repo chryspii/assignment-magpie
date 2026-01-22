@@ -19,6 +19,10 @@ model Review {
   rating Int
   comment String
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  syncedAt DateTime @default(now())
+
   product Product @relation(fields: [productId], references: [id])
   productId Int
 }
@@ -37,6 +41,10 @@ model Product {
   category String
   rating Float
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  syncedAt DateTime @default(now())
+
   reviews Review[]
   orderItems OrderItem[]
 }
@@ -48,12 +56,20 @@ model Order {
   totalPrice Float
   status String
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  syncedAt DateTime @default(now())
+
   items OrderItem[]
 }
 
 model OrderItem {
   id Int @id @default(autoincrement())
   quantity Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  syncedAt DateTime @default(now())
 
   order Order @relation(fields: [orderId], references: [id])
   orderId Int

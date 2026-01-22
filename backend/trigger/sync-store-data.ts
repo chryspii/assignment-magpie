@@ -11,6 +11,8 @@ export const syncStoreData = schedules.task({
   cron: '0 * * * *',
   maxDuration: 300,
   run: async () => {
+    const syncedAt = new Date();
+
     const resProduct = await fetch(PRODUCTS_URL);
     const products = await resProduct.json();
 
@@ -21,8 +23,14 @@ export const syncStoreData = schedules.task({
         where: {
           externalId: productData.externalId
         },
-        update: productData,
-        create: productData
+        update: {
+          ...productData,
+          syncedAt
+        },
+        create: {
+          ...productData,
+          syncedAt
+        }
       });
 
       await prisma.review.deleteMany({
@@ -35,7 +43,11 @@ export const syncStoreData = schedules.task({
         data: R.pipe(
           R.propOr([], 'reviews'),
           mapReviews,
-          R.map((r) => ({ ...r, productId: savedProduct.id }))
+          R.map((r) => ({
+            ...r,
+            productId: savedProduct.id,
+            syncedAt
+          }))
         )(product)
       });
     }
@@ -50,8 +62,14 @@ export const syncStoreData = schedules.task({
         where: {
           externalId: orderData.externalId
         },
-        update: orderData,
-        create: orderData
+        update: {
+          ...orderData,
+          syncedAt
+        },
+        create: {
+          ...orderData,
+          syncedAt
+        }
       });
 
       await prisma.orderItem.deleteMany({
@@ -80,13 +98,15 @@ export const syncStoreData = schedules.task({
           data: {
             orderId: savedOrder.id,
             productId: product.id,
-            quantity: item.quantity
+            quantity: item.quantity,
+            syncedAt
           }
         });
       }
     }
 
     return {
+      syncedAt,
       productsSynced: products.length,
       ordersSynced: orders.length
     }
