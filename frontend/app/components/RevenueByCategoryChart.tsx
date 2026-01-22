@@ -1,47 +1,44 @@
 'use client';
 
-import { Bar } from 'react-chartjs-2';
-import { palette, gridColor } from './chartColors';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { palette } from './chartColors';
 
-export function RevenueByCategoryChart({ data }: {
-  data: { category: string; revenue: number }[]
+export function RevenueByCategoryChart({
+  data,
+}: {
+  data: { category: string; revenue: number }[];
 }) {
   return (
-    <Bar
-      data={{
-        labels: data.map((d) => d.category),
-        datasets: [
-          {
-            label: 'Revenue',
-            data: data.map((d) => d.revenue),
-            backgroundColor: palette.slice(0, data.length),
-            borderRadius: 8,
-            maxBarThickness: 48
-          },
-        ],
-      }}
-      options={{
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) =>
-                `$${ctx.raw?.toLocaleString()}`
-            }
+    <ResponsiveContainer width='100%' height='100%'>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray='3 3' />
+        <XAxis dataKey='category' />
+        <YAxis
+          tickFormatter={(v) => `$${v.toLocaleString()}`}
+        />
+        <Tooltip
+          formatter={(v: number) =>
+            `$${v.toLocaleString()}`
           }
-        },
-        scales: {
-          x: {
-            grid: { display: false }
-          },
-          y: {
-            grid: { color: gridColor },
-            ticks: { callback: (value) => `$${Number(value).toLocaleString()}`}
-          }
-        }
-      }}
-    />
+        />
+
+        <Bar
+          dataKey='revenue'
+          shape={(props: any) => {
+            const { x, y, width, height, index } = props;
+            return (
+              <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                rx={2}
+                fill={palette[index % palette.length]}
+              />
+            );
+          }}
+        />
+      </BarChart>
+    </ResponsiveContainer>
   );
 }

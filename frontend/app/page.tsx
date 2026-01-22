@@ -1,12 +1,12 @@
-import ChartSetup from './components/ChartSetup';
+import Navbar from './components/Navbar';
 import ChartCard from './components/ChartCard';
-
 import MetricCard from './components/MetricCard';
+
 import { OrdersByStatusChart } from './components/OrdersByStatusChart';
 import { ProductsByCategoryChart } from './components/ProductsByCategoryChart';
+import { RevenueByCategoryChart } from './components/RevenueByCategoryChart';
 import { RecentOrdersTable } from './components/RecentOrdersTable';
 import { TopProductsTable } from './components/TopProductsTable';
-import { RevenueByCategoryChart } from './components/RevenueByCategoryChart';
 
 async function getDashboardData() {
   const res = await fetch('http://localhost:3000/api/dashboard', {
@@ -20,72 +20,72 @@ async function getDashboardData() {
   return res.json();
 }
 
-export default async function Home() {
-  const data = await getDashboardData();
-
-  const metrics = data.metrics
-  const ordersByStatus = data.ordersByStatus
-  const productsByCategory = data.productsByCategory
-  const recentOrders = data.recentOrders
-  const topProducts = data.topProducts
-  const insight = data.insight
+export default async function DashboardPage() {
+  const {
+    metrics,
+    ordersByStatus,
+    productsByCategory,
+    recentOrders,
+    topProducts,
+    insight,
+  } = await getDashboardData();
 
   return (
-    <ChartSetup>
-      <main className='p-6 space-y-6 bg-gray-50 min-h-screen'>
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-          <MetricCard title='Total Revenue' value={`$${metrics.totalRevenue}`} />
+    <>
+      <Navbar />
+
+      <main className='mx-auto max-w-7xl px-4 py-6 space-y-6 bg-gray-50'>
+        {/* METRICS */}
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+          <MetricCard title='Total Revenue' value={`$${metrics.totalRevenue.toLocaleString()}`} />
           <MetricCard title='Total Orders' value={metrics.totalOrders} />
-          <MetricCard
-            title='Avg Order Value'
-            value={`$${metrics.avgOrderValue.toFixed(2)}`}
-          />
-          <MetricCard
-            title='Avg Product Rating'
-            value={metrics.avgRating.toFixed(1)}
-          />
+          <MetricCard title='Avg Order Value' value={`$${metrics.avgOrderValue.toFixed(2)}`} />
+          <MetricCard title='Avg Rating' value={metrics.avgRating.toFixed(1)} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="h-80">
-            <ChartCard title="Orders by Status">
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="aspect-square h-full max-h-full w-auto">
-                  <OrdersByStatusChart data={ordersByStatus} />
-                </div>
-              </div>
+        {/* CHARTS */}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='h-100'>
+            <ChartCard title='Orders by Status'>
+              <OrdersByStatusChart data={ordersByStatus} />
             </ChartCard>
           </div>
 
-          <div className="h-80">
-            <ChartCard title="Products by Category">
+          <div className='h-100'>
+            <ChartCard title='Products by Category'>
               <ProductsByCategoryChart data={productsByCategory} />
             </ChartCard>
           </div>
         </div>
 
+        {/* TABLES */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          <div className='bg-white p-4 rounded-xl shadow'>
-            <div className='mb-2 text-sm font-semibold text-gray-700'>
-              Recent Orders
+          <div className='bg-white rounded-xl shadow p-4 overflow-x-auto'>
+            <div className='mb-3 text-center'>
+              <h2 className='text-base md:text-lg font-semibold text-gray-800'>
+                Recent Orders
+              </h2>
             </div>
             <RecentOrdersTable orders={recentOrders} />
           </div>
 
-          <div className='bg-white p-4 rounded-xl shadow'>
-            <div className='mb-2 text-sm font-semibold text-gray-700'>
-              Top Products
+          <div className='bg-white rounded-xl shadow p-4 overflow-x-auto'>
+            <div className='mb-3 text-center'>
+              <h2 className='text-base md:text-lg font-semibold text-gray-800'>
+                Top Products
+              </h2>
             </div>
             <TopProductsTable products={topProducts} />
           </div>
         </div>
 
-        <div className="h-80 bg-white p-4 rounded-xl shadow">
-          <ChartCard title="Revenue by Category">
+        {/* INSIGHT */}
+        <div className='h-100'>
+          <ChartCard title='Revenue by Category'>
             <RevenueByCategoryChart data={insight} />
           </ChartCard>
         </div>
       </main>
-    </ChartSetup>
+    </>
   );
 }

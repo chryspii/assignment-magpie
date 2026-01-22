@@ -1,37 +1,38 @@
 'use client';
 
-import { Bar } from 'react-chartjs-2';
-import { gridColor, palette } from './chartColors';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { palette } from './chartColors';
 
-export function ProductsByCategoryChart({ data }: any) {
+export function ProductsByCategoryChart({
+  data,
+}: {
+  data: { category: string; count: number }[];
+}) {
   return (
-    <Bar
-      data={{
-        labels: data.map((d: any) => d.category),
-        datasets: [
-          {
-            label: 'Products',
-            data: data.map((d: any) => d.count),
-            backgroundColor: palette[0],
-            borderRadius: 6,
-            maxBarThickness: 48
-          }
-        ]
-      }}
-      options={{
-        plugins: {
-          legend: { display: true }
-        },
-        scales: {
-          x: {
-            grid: { display: true }
-          },
-          y: {
-            grid: { color: gridColor },
-            ticks: { precision: 0 }
-          }
-        }
-      }}
-    />
+    <ResponsiveContainer width='100%' height='100%'>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray='3 3' />
+        <XAxis dataKey='category' />
+        <YAxis allowDecimals={false} />
+        <Tooltip />
+
+        <Bar
+          dataKey='count'
+          shape={(props: any) => {
+            const { x, y, width, height, index } = props;
+            return (
+              <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                rx={2}
+                fill={palette[index % palette.length]}
+              />
+            );
+          }}
+        />
+      </BarChart>
+    </ResponsiveContainer>
   );
 }

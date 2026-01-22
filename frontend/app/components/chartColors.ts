@@ -6,5 +6,3 @@ export const palette = [
   '#0EA5E9',
   '#A855F7',
 ];
-
-export const gridColor = 'rgba(0, 0, 0, 0.05)';

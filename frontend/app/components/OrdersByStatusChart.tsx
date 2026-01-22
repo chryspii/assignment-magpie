@@ -1,33 +1,28 @@
 'use client';
 
-import { Doughnut } from 'react-chartjs-2';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { palette } from './chartColors';
 
-export function OrdersByStatusChart({ data }: any) {
+export function OrdersByStatusChart({ data }: {
+  data: { status: string; count: number }[];
+}) {
   return (
-    <Doughnut
-      data={{
-        labels: data.map((d: any) => d.status),
-        datasets: [
-          {
-            data: data.map((d: any) => d.count),
-            backgroundColor: palette.slice(0, data.length),
-            borderWidth: 20
-          }
-        ]
-      }}
-      options={{
-        cutout: '65%',
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              usePointStyle: true,
-              padding: 16
-            }
-          }
-        }
-      }}
-    />
+    <ResponsiveContainer width='100%' height='100%'>
+      <PieChart>
+        <Pie
+          data={data}
+          dataKey='count'
+          nameKey='status'
+          innerRadius='40%'
+          outerRadius='80%'
+        >
+          {data.map((_, i) => (
+            <Cell key={i} fill={palette[i % palette.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend verticalAlign='bottom' />
+      </PieChart>
+    </ResponsiveContainer>
   );
 }
