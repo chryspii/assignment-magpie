@@ -12,6 +12,14 @@ https://github.com/chryspii/assignment-magpie/blob/ead54489612a098b089e1a71896e6
 
 https://github.com/chryspii/assignment-magpie/blob/ead54489612a098b089e1a71896e68c999accbd0/backend/trigger/sync-store-data.ts#L107-L111
 
+## AI Usage
+#### Tools
+- ChatGPT
+#### Usage
+- Generate Schema based on JSON Data
+- Generate Project Structure in README.md
+- Generate Chart components (Donut and Bar)
+
 ## Requirements
 - Node.js 20
 - Docker
@@ -19,19 +27,27 @@ https://github.com/chryspii/assignment-magpie/blob/ead54489612a098b089e1a71896e6
 
 ## Project Structure
 ```
+.
+├── .env                     # Root env (Docker & shared vars)
 ├── backend/
-│ ├── app/ # Next.js App Router (API routes)
-│ ├── lib/ # Prisma client
-│ ├── prisma/ # Prisma schema
-│ ├── trigger/ # Trigger.dev jobs
-│ ├── prisma.config.ts # Prisma 7 config (ROOT)
+│ ├── app/                   # Next.js App Router (API routes)
+│ ├── lib/                   # Prisma client
+│ ├── prisma/                # Prisma schema
+│ ├── trigger/               # Trigger.dev jobs
+│ ├── prisma.config.ts       # Prisma 7 config (ROOT for backend)
+│ ├── trigger.config.ts      # Trigger.dev configuration
+│ ├── Dockerfile
+│ ├── .dockerignore
 │ ├── package.json
-│ └── .env
+│ ├── .env                   # Backend env (Docker)
+│ └── .env.local             # Backend env (Docker)
 ├── frontend/
-│ ├── app/ # Next.js pages
-│ ├── components/ # UI & charts
+│ ├── app/                   # Next.js pages
+│ ├── components/            # UI & charts
+│ ├── Dockerfile
 │ ├── package.json
-│ └── .env.local
+│ ├── .env                   # Frontend env (Docker)
+│ └── .env.local             # Frontend env (local dev)
 ├── docker-compose.yml
 └── README.md
 ```
