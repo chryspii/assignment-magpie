@@ -12,12 +12,12 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   backend:
-    build: ./backend-new
+    build: ./backend
     container_name: store-backend
     ports:
       - "3000:3000"
     env_file:
-      - ./backend-new/.env
+      - ./backend/.env
     depends_on:
       - postgres
 
