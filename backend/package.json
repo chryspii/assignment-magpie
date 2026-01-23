@@ -1,12 +1,13 @@
 {
-  "name": "backend",
+  "name": "backend-new",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "trigger-dev": "npx trigger.dev@latest dev --env-file .env.local"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
@@ -14,10 +15,11 @@
     "@trigger.dev/sdk": "4.3.2",
     "next": "16.1.4",
     "prisma": "^7.3.0",
-    "ramda": "^0.32.0"
+    "ramda": "^0.32.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "@trigger.dev/build": "4.3.2",
     "@types/node": "^20",
     "@types/ramda": "^0.31.1",
     "eslint": "^9",

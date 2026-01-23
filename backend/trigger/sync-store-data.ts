@@ -43,120 +43,125 @@ async function _syncStoreData () {
 
   const now = new Date();
 
-  const [products, orders] = await Promise.all([
-    fetchProducts(),
-    fetchOrders()
-  ]);
+  try {
+    const [products, orders] = await Promise.all([
+      fetchProducts(),
+      fetchOrders()
+    ]);
 
-  const productIdMap: Record<number, number> = {};
+    const productIdMap: Record<number, number> = {};
 
-  for (const product of products) {
-    const adjustedPrice = randomPrice(product.price);
+    for (const product of products) {
+      const adjustedPrice = randomPrice(product.price);
 
-    const upsertedProduct = await prisma.product.upsert({
-      where: { externalId: product.product_id },
-      create: {
-        externalId: product.product_id,
-        name: product.name,
-        description: product.description,
-        price: adjustedPrice,
-        unit: product.unit,
-        image: product.image,
-        discount: product.discount,
-        availability: product.availability,
-        brand: product.brand,
-        category: product.category,
-        rating: product.rating,
-        updatedAt: new Date(),
-        syncedAt: new Date()
-      },
-      update: {
-        name: product.name,
-        description: product.description,
-        price: adjustedPrice,
-        unit: product.unit,
-        image: product.image,
-        discount: product.discount,
-        availability: product.availability,
-        brand: product.brand,
-        category: product.category,
-        rating: product.rating,
-        updatedAt: new Date()
-      }
-    });
-
-    productIdMap[product.product_id] = upsertedProduct.id;
-  }
-
-  for (const order of orders) {
-    let orderTotalPrice = 0;
-
-    const orderItemsData: any = R.pipe(
-      R.map((item: any) => {
-        const productId = productIdMap[item.product_id];
-
-        if (!productId) {
-          return
-        }
-
-        const productPrice = products.find(
-          (p: any) => p.product_id === item.product_id
-        )?.price ?? 0;
-
-        const qty = randomQty(item.quantity);
-        const price = randomPrice(productPrice);
-        const totalPrice = Number(price * qty);
-
-        orderTotalPrice += totalPrice;
-
-        return {
-          productId,
-          quantity: qty,
-          syncedAt: new Date(),
+      const upsertedProduct = await prisma.product.upsert({
+        where: { externalId: product.product_id },
+        create: {
+          externalId: product.product_id,
+          name: product.name,
+          description: product.description,
+          price: adjustedPrice,
+          unit: product.unit,
+          image: product.image,
+          discount: product.discount,
+          availability: product.availability,
+          brand: product.brand,
+          category: product.category,
+          rating: product.rating,
+          updatedAt: new Date(),
+          syncedAt: new Date()
+        },
+        update: {
+          name: product.name,
+          description: product.description,
+          price: adjustedPrice,
+          unit: product.unit,
+          image: product.image,
+          discount: product.discount,
+          availability: product.availability,
+          brand: product.brand,
+          category: product.category,
+          rating: product.rating,
           updatedAt: new Date()
         }
-      }),
-      R.reject(R.isNil)
-    )(order.items)
+      });
 
-    orderTotalPrice = parseFloat(orderTotalPrice.toFixed(2))
+      productIdMap[product.product_id] = upsertedProduct.id;
+    }
 
-    await prisma.order.upsert({
-      where: { externalId: order.order_id },
-      create: {
-        externalId: order.order_id,
-        userId: order.user_id,
-        status: order.status,
-        totalPrice: orderTotalPrice,
-        syncedAt: new Date(),
-        updatedAt: new Date(),
-        items: {
-          create: orderItemsData,
+    for (const order of orders) {
+      let orderTotalPrice = 0;
+
+      const orderItemsData: any = R.pipe(
+        R.map((item: any) => {
+          const productId = productIdMap[item.product_id];
+
+          if (!productId) {
+            return
+          }
+
+          const productPrice = products.find(
+            (p: any) => p.product_id === item.product_id
+          )?.price ?? 0;
+
+          const qty = randomQty(item.quantity);
+          const price = randomPrice(productPrice);
+          const totalPrice = Number(price * qty);
+
+          orderTotalPrice += totalPrice;
+
+          return {
+            productId,
+            quantity: qty,
+            syncedAt: new Date(),
+            updatedAt: new Date()
+          }
+        }),
+        R.reject(R.isNil)
+      )(order.items)
+
+      orderTotalPrice = parseFloat(orderTotalPrice.toFixed(2))
+
+      await prisma.order.upsert({
+        where: { externalId: order.order_id },
+        create: {
+          externalId: order.order_id,
+          userId: order.user_id,
+          status: order.status,
+          totalPrice: orderTotalPrice,
+          syncedAt: new Date(),
+          updatedAt: new Date(),
+          items: {
+            create: orderItemsData,
+          }
+        },
+        update: {
+          status: order.status,
+          totalPrice: orderTotalPrice,
+          updatedAt: new Date()
         }
-      },
-      update: {
-        status: order.status,
-        totalPrice: orderTotalPrice,
-        updatedAt: new Date()
-      }
-    });
-  }
+      });
+    }
 
-  console.log('Store data sync completed');
+    console.log('Store data sync completed');
 
-  return {
-    syncedAt: now,
-    productsSynced: products.length,
-    ordersSynced: orders.length
+    return {
+      syncedAt: now,
+      productsSynced: products.length,
+      ordersSynced: orders.length
+    }
+  } catch (err) {
+    console.log('Trigger Error: ', err);
   }
 }
 
 export const syncStoreData = schedules.task({
   id: 'sync-store-data',
-  cron: '0 * * * *',
+  cron: '0 * * * *', // 1 hour
+  // cron: '* * * * *', // 1 minute - for test
   maxDuration: 300,
   run: async () => {
-    _syncStoreData();
+    await _syncStoreData();
   }
 });
 

@@ -9,7 +9,7 @@ import {
   getRecentOrders,
   getTopProducts,
   getRevenueByCategory
-} from './queries';
+} from '@/app/api/dashboard/queries';
 
 export async function GET() {
   const [
