@@ -9,15 +9,34 @@ import { RecentOrdersTable } from './components/RecentOrdersTable';
 import { TopProductsTable } from './components/TopProductsTable';
 
 async function getDashboardData() {
-  const res = await fetch('http://localhost:3000/api/dashboard', {
-    cache: 'no-store',
-  });
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard`,
+      { cache: 'no-store' }
+    );
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch dashboard data');
+    if (!res.ok) {
+      throw new Error('Backend not ready');
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error('Dashboard fetch failed:', error);
+
+    return {
+      metrics: {
+        totalRevenue: 0,
+        totalOrders: 0,
+        avgOrderValue: 0,
+        avgRating: 0
+      },
+      ordersByStatus: [],
+      productsByCategory: [],
+      recentOrders: [],
+      topProducts: [],
+      insight: []
+    };
   }
-
-  return res.json();
 }
 
 export default async function DashboardPage() {
@@ -45,17 +64,13 @@ export default async function DashboardPage() {
 
         {/* CHARTS */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          <div className='h-100'>
-            <ChartCard title='Orders by Status'>
-              <OrdersByStatusChart data={ordersByStatus} />
-            </ChartCard>
-          </div>
+          <ChartCard title='Orders by Status'>
+            <OrdersByStatusChart data={ordersByStatus} />
+          </ChartCard>
 
-          <div className='h-100'>
-            <ChartCard title='Products by Category'>
-              <ProductsByCategoryChart data={productsByCategory} />
-            </ChartCard>
-          </div>
+          <ChartCard title='Products by Category'>
+            <ProductsByCategoryChart data={productsByCategory} />
+          </ChartCard>
         </div>
 
         {/* TABLES */}
@@ -80,11 +95,9 @@ export default async function DashboardPage() {
         </div>
 
         {/* INSIGHT */}
-        <div className='h-100'>
-          <ChartCard title='Revenue by Category'>
-            <RevenueByCategoryChart data={insight} />
-          </ChartCard>
-        </div>
+        <ChartCard title='Revenue by Category'>
+          <RevenueByCategoryChart data={insight} />
+        </ChartCard>
       </main>
     </>
   );

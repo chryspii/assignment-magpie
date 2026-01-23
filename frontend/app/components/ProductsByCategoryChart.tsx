@@ -9,7 +9,7 @@ export function ProductsByCategoryChart({
   data: { category: string; count: number }[];
 }) {
   return (
-    <ResponsiveContainer width='100%' height='100%'>
+    <ResponsiveContainer width='100%' height={300}>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray='3 3' />
         <XAxis dataKey='category' />

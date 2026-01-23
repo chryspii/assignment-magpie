@@ -9,7 +9,7 @@ export function RevenueByCategoryChart({
   data: { category: string; revenue: number }[];
 }) {
   return (
-    <ResponsiveContainer width='100%' height='100%'>
+    <ResponsiveContainer width='100%' height={400} className='chart-min-size'>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray='3 3' />
         <XAxis dataKey='category' />
@@ -17,9 +17,10 @@ export function RevenueByCategoryChart({
           tickFormatter={(v) => `$${v.toLocaleString()}`}
         />
         <Tooltip
-          formatter={(v: number) =>
-            `$${v.toLocaleString()}`
-          }
+          formatter={(value) => {
+            if (typeof value !== "number") return value;
+            return `$${value.toLocaleString()}`;
+          }}
         />
 
         <Bar
